@@ -1,7 +1,92 @@
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
+import { jsPDF } from 'jspdf';
 
 const mailgun = new Mailgun(formData);
+
+// Función para generar el PDF en el servidor
+function generarPDF(datos) {
+  const doc = new jsPDF();
+  
+  // Configurar fuente y colores
+  doc.setFontSize(20);
+  doc.setTextColor(164, 30, 52); // Rojo Seemann
+  doc.text('SEEMANN GROUP', 105, 20, { align: 'center' });
+  
+  doc.setFontSize(16);
+  doc.text('Registro de Información', 105, 30, { align: 'center' });
+  
+  // Línea separadora
+  doc.setDrawColor(164, 30, 52);
+  doc.line(20, 35, 190, 35);
+  
+  let y = 50;
+  
+  // Información del usuario
+  doc.setFontSize(14);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'bold');
+  doc.text('INFORMACIÓN REGISTRADA', 20, y);
+  y += 15;
+  
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('RUT:', 20, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(datos.rut, 70, y);
+  y += 10;
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Nombre Completo:', 20, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${datos.nombre} ${datos.apellido}`, 70, y);
+  y += 10;
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Correo Electrónico:', 20, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(datos.correo, 70, y);
+  y += 10;
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Teléfono:', 20, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(datos.telefono, 70, y);
+  y += 10;
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Empresa:', 20, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(datos.empresa, 70, y);
+  y += 10;
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Dirección:', 20, y);
+  doc.setFont('helvetica', 'normal');
+  const direccionLines = doc.splitTextToSize(datos.direccion, 120);
+  doc.text(direccionLines, 70, y);
+  y += direccionLines.length * 7;
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Comuna:', 20, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(datos.comuna, 70, y);
+  y += 10;
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Ciudad:', 20, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(datos.ciudad, 70, y);
+  
+  // Footer
+  doc.setFontSize(10);
+  doc.setTextColor(128, 128, 128);
+  doc.text('Seemann Group - Líder en soluciones logísticas internacionales', 105, 285, { align: 'center' });
+  doc.text('contacto@seemanngroup.com | +56 2 2604 8386', 105, 290, { align: 'center' });
+  
+  // Retornar el buffer del PDF
+  return Buffer.from(doc.output('arraybuffer'));
+}
 
 export default async function handler(req, res) {
   // Solo permitir POST
@@ -80,18 +165,24 @@ export default async function handler(req, res) {
       </div>
     `;
 
-    // Convertir el PDF base64 a buffer para attachment
-    const attachments = [];
-    if (pdfBase64) {
-      // Remover el prefijo "data:application/pdf;base64," si existe
-      const base64Data = pdfBase64.replace(/^data:application\/pdf;base64,/, '');
-      const pdfBuffer = Buffer.from(base64Data, 'base64');
-      
-      attachments.push({
-        filename: `Registro_${nombre}_${apellido}.pdf`,
-        data: pdfBuffer
-      });
-    }
+    // Generar PDF en el servidor
+    const pdfBuffer = generarPDF({
+      rut,
+      nombre,
+      apellido,
+      telefono,
+      correo,
+      empresa,
+      direccion,
+      comuna,
+      ciudad
+    });
+    
+    // Crear attachment
+    const attachments = [{
+      filename: `Registro_${nombre}_${apellido}.pdf`,
+      data: pdfBuffer
+    }];
 
     // Preparar datos del mensaje
     const messageData = {
