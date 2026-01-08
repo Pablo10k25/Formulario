@@ -1,7 +1,8 @@
-const formData = require('form-data');
-const Mailgun = require('mailgun.js');
+const { Resend } = require('resend');
 
-const mailgun = new Mailgun(formData);
+// Inicializar Resend con tu API key
+// IMPORTANTE: Obtén tu API key en https://resend.com/api-keys
+const resend = new Resend(process.env.RESEND_API_KEY || 'TU_API_KEY_AQUI');
 
 module.exports = async function handler(req, res) {
   // Solo permitir POST
@@ -26,12 +27,6 @@ module.exports = async function handler(req, res) {
     if (!correo || !nombre || !apellido) {
       return res.status(400).json({ error: 'Faltan datos requeridos' });
     }
-
-    // Configurar Mailgun
-    const mg = mailgun.client({
-      username: 'api',
-      key: 'da75815501e47e1dbea988c2bfd65728-f6d80573-badd1e26'
-    });
 
     // Preparar el HTML del email
     const emailHTML = `
@@ -77,27 +72,28 @@ module.exports = async function handler(req, res) {
       </div>
     `;
 
-    // Preparar datos del mensaje
-    const messageData = {
-      from: 'Seemann Group <postmaster@sandbox8c39856aa66e44aeb317a40bb447c6f1.mailgun.org>',
-      to: correo,
+    // Enviar email usando Resend
+    const { data, error } = await resend.emails.send({
+      from: 'Seemann Group <onboarding@resend.dev>', // Cambiar por tu dominio verificado
+      to: [correo],
       subject: 'Confirmación de Registro - Seemann Group',
       html: emailHTML,
-      text: `Confirmación de Registro\n\nGracias por registrar su información en Seemann Group.\n\nRUT: ${rut}\nNombre: ${nombre} ${apellido}\nTeléfono: ${telefono}\nEmpresa: ${empresa}\nDirección: ${direccion}\nComuna: ${comuna}\nCiudad: ${ciudad}\n\nNos pondremos en contacto con usted a la brevedad.\n\nSeemann Group`
-    };
+    });
 
-    // Enviar el email
-    const result = await mg.messages.create(
-      'sandbox8c39856aa66e44aeb317a40bb447c6f1.mailgun.org',
-      messageData
-    );
+    if (error) {
+      console.error('Error al enviar email:', error);
+      return res.status(400).json({ 
+        error: 'Error al enviar el email',
+        details: error.message 
+      });
+    }
 
-    console.log('Email enviado:', result);
+    console.log('Email enviado:', data);
 
     return res.status(200).json({ 
       success: true, 
       message: 'Email enviado exitosamente',
-      messageId: result.id
+      messageId: data.id
     });
 
   } catch (error) {
