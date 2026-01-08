@@ -1,9 +1,9 @@
-import formData from 'form-data';
-import Mailgun from 'mailgun.js';
+const formData = require('form-data');
+const Mailgun = require('mailgun.js');
 
 const mailgun = new Mailgun(formData);
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Solo permitir POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -107,4 +107,4 @@ export default async function handler(req, res) {
       details: error.message 
     });
   }
-}
+};
