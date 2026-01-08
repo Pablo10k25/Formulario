@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { jsPDF } from 'jspdf';
 import './FormularioSeemann.css';
 
 interface FormData {
@@ -39,88 +38,7 @@ const FormularioSeemann = () => {
     }));
   };
 
-  const generarPDF = (): string => {
-    const doc = new jsPDF();
-    
-    // Configurar fuente y colores
-    doc.setFontSize(20);
-    doc.setTextColor(164, 30, 52); // Rojo Seemann
-    doc.text('SEEMANN GROUP', 105, 20, { align: 'center' });
-    
-    doc.setFontSize(16);
-    doc.text('Registro de Información', 105, 30, { align: 'center' });
-    
-    // Línea separadora
-    doc.setDrawColor(164, 30, 52);
-    doc.line(20, 35, 190, 35);
-    
-    let y = 50;
-    
-    // Información del usuario
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont('helvetica', 'bold');
-    doc.text('INFORMACIÓN REGISTRADA', 20, y);
-    y += 15;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('RUT:', 20, y);
-    doc.setFont('helvetica', 'normal');
-    doc.text(formData.rut, 70, y);
-    y += 10;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.text('Nombre Completo:', 20, y);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`${formData.nombre} ${formData.apellido}`, 70, y);
-    y += 10;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.text('Correo Electrónico:', 20, y);
-    doc.setFont('helvetica', 'normal');
-    doc.text(formData.correo, 70, y);
-    y += 10;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.text('Teléfono:', 20, y);
-    doc.setFont('helvetica', 'normal');
-    doc.text(formData.telefono, 70, y);
-    y += 10;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.text('Empresa:', 20, y);
-    doc.setFont('helvetica', 'normal');
-    doc.text(formData.empresa, 70, y);
-    y += 10;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.text('Dirección:', 20, y);
-    doc.setFont('helvetica', 'normal');
-    const direccionLines = doc.splitTextToSize(formData.direccion, 120);
-    doc.text(direccionLines, 70, y);
-    y += direccionLines.length * 7;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.text('Comuna:', 20, y);
-    doc.setFont('helvetica', 'normal');
-    doc.text(formData.comuna, 70, y);
-    y += 10;
-    
-    doc.setFont('helvetica', 'bold');
-    doc.text('Ciudad:', 20, y);
-    doc.setFont('helvetica', 'normal');
-    doc.text(formData.ciudad, 70, y);
-    
-    // Footer
-    doc.setFontSize(10);
-    doc.setTextColor(128, 128, 128);
-    doc.text('Seemann Group - Líder en soluciones logísticas internacionales', 105, 285, { align: 'center' });
-    doc.text('contacto@seemanngroup.com | +56 2 2604 8386', 105, 290, { align: 'center' });
-    
-    // Convertir a base64
-    return doc.output('dataurlstring');
-  };
+
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -128,8 +46,6 @@ const FormularioSeemann = () => {
     setSubmitStatus('idle');
 
     try {
-      // Ya no generamos el PDF aquí, se genera en el backend
-      
       // Enviar datos al backend (Vercel Function)
       const response = await fetch('/api/send-email', {
         method: 'POST',
@@ -328,7 +244,7 @@ const FormularioSeemann = () => {
         {/* Mensajes de estado */}
         {submitStatus === 'success' && (
           <div className="alert alert-success">
-            ✓ ¡Información enviada exitosamente! Recibirá un correo de confirmación con sus datos en formato PDF.
+            ✓ ¡Información enviada exitosamente! Recibirá un correo de confirmación con sus datos.
           </div>
         )}
 

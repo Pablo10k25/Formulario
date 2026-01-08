@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "form-data": "^4.0.5",
-    "jspdf": "^4.0.0",
     "mailgun.js": "^12.6.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

@@ -1,61 +1,7 @@
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
-import PDFDocument from 'pdfkit';
 
 const mailgun = new Mailgun(formData);
-
-// Función para generar el PDF en el servidor
-function generarPDF(datos) {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument();
-    const chunks = [];
-    
-    // Capturar los chunks del PDF
-    doc.on('data', chunk => chunks.push(chunk));
-    doc.on('end', () => resolve(Buffer.concat(chunks)));
-    doc.on('error', reject);
-    
-    // Header
-    doc.fontSize(20).fillColor('#A41E34').text('SEEMANN GROUP', { align: 'center' });
-    doc.moveDown(0.5);
-    doc.fontSize(16).text('Registro de Información', { align: 'center' });
-    doc.moveDown(1);
-    
-    // Línea separadora
-    doc.strokeColor('#A41E34').lineWidth(2)
-       .moveTo(50, doc.y).lineTo(550, doc.y).stroke();
-    doc.moveDown(2);
-    
-    // Información
-    doc.fontSize(14).fillColor('#000000').text('INFORMACIÓN REGISTRADA', { underline: true });
-    doc.moveDown(1);
-    
-    doc.fontSize(12);
-    doc.text(`RUT: ${datos.rut}`);
-    doc.moveDown(0.5);
-    doc.text(`Nombre Completo: ${datos.nombre} ${datos.apellido}`);
-    doc.moveDown(0.5);
-    doc.text(`Correo Electrónico: ${datos.correo}`);
-    doc.moveDown(0.5);
-    doc.text(`Teléfono: ${datos.telefono}`);
-    doc.moveDown(0.5);
-    doc.text(`Empresa: ${datos.empresa}`);
-    doc.moveDown(0.5);
-    doc.text(`Dirección: ${datos.direccion}`);
-    doc.moveDown(0.5);
-    doc.text(`Comuna: ${datos.comuna}`);
-    doc.moveDown(0.5);
-    doc.text(`Ciudad: ${datos.ciudad}`);
-    
-    // Footer
-    doc.moveDown(3);
-    doc.fontSize(10).fillColor('#808080');
-    doc.text('Seemann Group - Líder en soluciones logísticas internacionales', { align: 'center' });
-    doc.text('contacto@seemanngroup.com | +56 2 2604 8386', { align: 'center' });
-    
-    doc.end();
-  });
-}
 
 export default async function handler(req, res) {
   // Solo permitir POST
@@ -73,8 +19,7 @@ export default async function handler(req, res) {
       empresa, 
       direccion, 
       comuna, 
-      ciudad,
-      pdfBase64 
+      ciudad
     } = req.body;
 
     // Validar datos requeridos
@@ -115,9 +60,7 @@ export default async function handler(req, res) {
             <p><strong>Ciudad:</strong> ${ciudad}</p>
           </div>
           
-          <p><strong>Nota:</strong> Adjuntamos un PDF con el detalle completo de su información para su registro.</p>
-          
-          <p style="margin-top: 30px;">Nos pondremos en contacto con usted a la brevedad.</p>
+<p style="margin-top: 30px;">Nos pondremos en contacto con usted a la brevedad.</p>
           
           <p>Saludos cordiales,<br>
           <strong>Equipo Seemann Group</strong></p>
@@ -134,33 +77,13 @@ export default async function handler(req, res) {
       </div>
     `;
 
-    // Generar PDF en el servidor
-    const pdfBuffer = await generarPDF({
-      rut,
-      nombre,
-      apellido,
-      telefono,
-      correo,
-      empresa,
-      direccion,
-      comuna,
-      ciudad
-    });
-    
-    // Crear attachment
-    const attachments = [{
-      filename: `Registro_${nombre}_${apellido}.pdf`,
-      data: pdfBuffer
-    }];
-
     // Preparar datos del mensaje
     const messageData = {
       from: 'Seemann Group <postmaster@sandbox8c39856aa66e44aeb317a40bb447c6f1.mailgun.org>',
       to: correo,
       subject: 'Confirmación de Registro - Seemann Group',
       html: emailHTML,
-      text: `Confirmación de Registro\n\nGracias por registrar su información en Seemann Group.\n\nRUT: ${rut}\nNombre: ${nombre} ${apellido}\nTeléfono: ${telefono}\nEmpresa: ${empresa}\nDirección: ${direccion}\nComuna: ${comuna}\nCiudad: ${ciudad}\n\nNos pondremos en contacto con usted a la brevedad.\n\nSeemann Group`,
-      attachment: attachments
+      text: `Confirmación de Registro\n\nGracias por registrar su información en Seemann Group.\n\nRUT: ${rut}\nNombre: ${nombre} ${apellido}\nTeléfono: ${telefono}\nEmpresa: ${empresa}\nDirección: ${direccion}\nComuna: ${comuna}\nCiudad: ${ciudad}\n\nNos pondremos en contacto con usted a la brevedad.\n\nSeemann Group`
     };
 
     // Enviar el email
