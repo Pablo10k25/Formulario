@@ -1,91 +1,60 @@
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
-import { jsPDF } from 'jspdf';
+import PDFDocument from 'pdfkit';
 
 const mailgun = new Mailgun(formData);
 
 // Función para generar el PDF en el servidor
 function generarPDF(datos) {
-  const doc = new jsPDF();
-  
-  // Configurar fuente y colores
-  doc.setFontSize(20);
-  doc.setTextColor(164, 30, 52); // Rojo Seemann
-  doc.text('SEEMANN GROUP', 105, 20, { align: 'center' });
-  
-  doc.setFontSize(16);
-  doc.text('Registro de Información', 105, 30, { align: 'center' });
-  
-  // Línea separadora
-  doc.setDrawColor(164, 30, 52);
-  doc.line(20, 35, 190, 35);
-  
-  let y = 50;
-  
-  // Información del usuario
-  doc.setFontSize(14);
-  doc.setTextColor(0, 0, 0);
-  doc.setFont('helvetica', 'bold');
-  doc.text('INFORMACIÓN REGISTRADA', 20, y);
-  y += 15;
-  
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text('RUT:', 20, y);
-  doc.setFont('helvetica', 'normal');
-  doc.text(datos.rut, 70, y);
-  y += 10;
-  
-  doc.setFont('helvetica', 'bold');
-  doc.text('Nombre Completo:', 20, y);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`${datos.nombre} ${datos.apellido}`, 70, y);
-  y += 10;
-  
-  doc.setFont('helvetica', 'bold');
-  doc.text('Correo Electrónico:', 20, y);
-  doc.setFont('helvetica', 'normal');
-  doc.text(datos.correo, 70, y);
-  y += 10;
-  
-  doc.setFont('helvetica', 'bold');
-  doc.text('Teléfono:', 20, y);
-  doc.setFont('helvetica', 'normal');
-  doc.text(datos.telefono, 70, y);
-  y += 10;
-  
-  doc.setFont('helvetica', 'bold');
-  doc.text('Empresa:', 20, y);
-  doc.setFont('helvetica', 'normal');
-  doc.text(datos.empresa, 70, y);
-  y += 10;
-  
-  doc.setFont('helvetica', 'bold');
-  doc.text('Dirección:', 20, y);
-  doc.setFont('helvetica', 'normal');
-  const direccionLines = doc.splitTextToSize(datos.direccion, 120);
-  doc.text(direccionLines, 70, y);
-  y += direccionLines.length * 7;
-  
-  doc.setFont('helvetica', 'bold');
-  doc.text('Comuna:', 20, y);
-  doc.setFont('helvetica', 'normal');
-  doc.text(datos.comuna, 70, y);
-  y += 10;
-  
-  doc.setFont('helvetica', 'bold');
-  doc.text('Ciudad:', 20, y);
-  doc.setFont('helvetica', 'normal');
-  doc.text(datos.ciudad, 70, y);
-  
-  // Footer
-  doc.setFontSize(10);
-  doc.setTextColor(128, 128, 128);
-  doc.text('Seemann Group - Líder en soluciones logísticas internacionales', 105, 285, { align: 'center' });
-  doc.text('contacto@seemanngroup.com | +56 2 2604 8386', 105, 290, { align: 'center' });
-  
-  // Retornar el buffer del PDF
-  return Buffer.from(doc.output('arraybuffer'));
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument();
+    const chunks = [];
+    
+    // Capturar los chunks del PDF
+    doc.on('data', chunk => chunks.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+    
+    // Header
+    doc.fontSize(20).fillColor('#A41E34').text('SEEMANN GROUP', { align: 'center' });
+    doc.moveDown(0.5);
+    doc.fontSize(16).text('Registro de Información', { align: 'center' });
+    doc.moveDown(1);
+    
+    // Línea separadora
+    doc.strokeColor('#A41E34').lineWidth(2)
+       .moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc.moveDown(2);
+    
+    // Información
+    doc.fontSize(14).fillColor('#000000').text('INFORMACIÓN REGISTRADA', { underline: true });
+    doc.moveDown(1);
+    
+    doc.fontSize(12);
+    doc.text(`RUT: ${datos.rut}`);
+    doc.moveDown(0.5);
+    doc.text(`Nombre Completo: ${datos.nombre} ${datos.apellido}`);
+    doc.moveDown(0.5);
+    doc.text(`Correo Electrónico: ${datos.correo}`);
+    doc.moveDown(0.5);
+    doc.text(`Teléfono: ${datos.telefono}`);
+    doc.moveDown(0.5);
+    doc.text(`Empresa: ${datos.empresa}`);
+    doc.moveDown(0.5);
+    doc.text(`Dirección: ${datos.direccion}`);
+    doc.moveDown(0.5);
+    doc.text(`Comuna: ${datos.comuna}`);
+    doc.moveDown(0.5);
+    doc.text(`Ciudad: ${datos.ciudad}`);
+    
+    // Footer
+    doc.moveDown(3);
+    doc.fontSize(10).fillColor('#808080');
+    doc.text('Seemann Group - Líder en soluciones logísticas internacionales', { align: 'center' });
+    doc.text('contacto@seemanngroup.com | +56 2 2604 8386', { align: 'center' });
+    
+    doc.end();
+  });
 }
 
 export default async function handler(req, res) {
@@ -166,7 +135,7 @@ export default async function handler(req, res) {
     `;
 
     // Generar PDF en el servidor
-    const pdfBuffer = generarPDF({
+    const pdfBuffer = await generarPDF({
       rut,
       nombre,
       apellido,

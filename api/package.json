@@ -11,6 +11,6 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "jspdf": "^4.0.0"
+    "pdfkit": "^0.17.2"
   }
 }

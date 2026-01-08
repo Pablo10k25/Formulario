@@ -128,8 +128,7 @@ const FormularioSeemann = () => {
     setSubmitStatus('idle');
 
     try {
-      // Generar PDF
-      const pdfBase64 = generarPDF();
+      // Ya no generamos el PDF aquí, se genera en el backend
       
       // Enviar datos al backend (Vercel Function)
       const response = await fetch('/api/send-email', {
@@ -147,7 +146,6 @@ const FormularioSeemann = () => {
           direccion: formData.direccion,
           comuna: formData.comuna,
           ciudad: formData.ciudad,
-          pdfBase64: pdfBase64,
         }),
       });
 
