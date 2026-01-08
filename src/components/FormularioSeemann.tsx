@@ -215,8 +215,11 @@ const FormularioSeemann = () => {
               value={formData.rut}
               onChange={handleChange}
               required
-              placeholder="12.345.678-9"
+              placeholder="12.345.678-9 (con puntos y guión)"
             />
+            <small style={{ color: '#666', fontSize: '0.9rem', marginTop: '4px', display: 'block' }}>
+              Ejemplo: 12.345.678-9 (incluir puntos y guión)
+            </small>
           </div>
 
           <div className="form-group">
