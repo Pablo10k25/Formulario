@@ -60,7 +60,7 @@ export default async function handler(req, res) {
             <p><strong>Ciudad:</strong> ${ciudad}</p>
           </div>
           
-<p style="margin-top: 30px;">Nos pondremos en contacto con usted a la brevedad.</p>
+          <p style="margin-top: 30px;">Nos pondremos en contacto con usted a la brevedad.</p>
           
           <p>Saludos cordiales,<br>
           <strong>Equipo Seemann Group</strong></p>
