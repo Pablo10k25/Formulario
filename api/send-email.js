@@ -80,18 +80,17 @@ export default async function handler(req, res) {
       </div>
     `;
 
-    // Convertir el PDF base64 a buffer
-    let attachment = undefined;
+    // Convertir el PDF base64 a buffer para attachment
+    const attachments = [];
     if (pdfBase64) {
       // Remover el prefijo "data:application/pdf;base64," si existe
       const base64Data = pdfBase64.replace(/^data:application\/pdf;base64,/, '');
       const pdfBuffer = Buffer.from(base64Data, 'base64');
       
-      attachment = {
+      attachments.push({
         filename: `Registro_${nombre}_${apellido}.pdf`,
-        data: pdfBuffer,
-        contentType: 'application/pdf'
-      };
+        data: pdfBuffer
+      });
     }
 
     // Preparar datos del mensaje
@@ -100,13 +99,9 @@ export default async function handler(req, res) {
       to: correo,
       subject: 'Confirmación de Registro - Seemann Group',
       html: emailHTML,
-      text: `Confirmación de Registro\n\nGracias por registrar su información en Seemann Group.\n\nRUT: ${rut}\nNombre: ${nombre} ${apellido}\nTeléfono: ${telefono}\nEmpresa: ${empresa}\nDirección: ${direccion}\nComuna: ${comuna}\nCiudad: ${ciudad}\n\nNos pondremos en contacto con usted a la brevedad.\n\nSeemann Group`
+      text: `Confirmación de Registro\n\nGracias por registrar su información en Seemann Group.\n\nRUT: ${rut}\nNombre: ${nombre} ${apellido}\nTeléfono: ${telefono}\nEmpresa: ${empresa}\nDirección: ${direccion}\nComuna: ${comuna}\nCiudad: ${ciudad}\n\nNos pondremos en contacto con usted a la brevedad.\n\nSeemann Group`,
+      attachment: attachments
     };
-
-    // Agregar attachment si existe
-    if (attachment) {
-      messageData.attachment = attachment;
-    }
 
     // Enviar el email
     const result = await mg.messages.create(
