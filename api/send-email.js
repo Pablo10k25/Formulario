@@ -47,10 +47,13 @@ module.exports = async function handler(req, res) {
     }
 
     // 1. GUARDAR EN GOOGLE SHEETS
-    try {
-      if (SPREADSHEET_ID) {
-        const timestamp = new Date().toLocaleString('es-CL', { timeZone: 'America/Santiago' });
-        await sheets.spreadsheets.values.append({
+    if (SPREADSHEET_ID) {
+      console.log('📊 Intentando guardar en Google Sheets...');
+      console.log('Sheet ID:', SPREADSHEET_ID);
+      const timestamp = new Date().toLocaleString('es-CL', { timeZone: 'America/Santiago' });
+      
+      try {
+        const result = await sheets.spreadsheets.values.append({
           spreadsheetId: SPREADSHEET_ID,
           range: 'Respuestas!A:J',
           valueInputOption: 'USER_ENTERED',
@@ -69,11 +72,16 @@ module.exports = async function handler(req, res) {
             ]],
           },
         });
-        console.log('✅ Guardado en Google Sheets');
+        console.log('✅ Guardado en Google Sheets exitosamente');
+      } catch (sheetError) {
+        console.error('❌ ERROR COMPLETO de Google Sheets:');
+        console.error('Mensaje:', sheetError.message);
+        console.error('Status:', sheetError.status);
+        console.error('Code:', sheetError.code);
+        // NO lanzar error, continuar con el proceso
       }
-    } catch (sheetError) {
-      console.error('⚠️ Error al guardar en Google Sheets:', sheetError);
-      // Continuar aunque falle Google Sheets
+    } else {
+      console.log('⚠️ GOOGLE_SHEET_ID no configurado');
     }
 
     // 2. PREPARAR EMAIL DE CONFIRMACIÓN AL CLIENTE
@@ -175,15 +183,18 @@ module.exports = async function handler(req, res) {
     `;
 
     try {
-      await resend.emails.send({
+      console.log('📧 Enviando notificación al equipo: pineiro@sphereglobal.io');
+      const teamResult = await resend.emails.send({
         from: 'Seemann Group <onboarding@resend.dev>',
         to: ['pineiro@sphereglobal.io'],
         subject: `🔔 Nueva solicitud de ${nombre} ${apellido} - ${empresa}`,
         html: teamEmailHTML,
       });
-      console.log('✅ Notificación enviada al equipo');
+      console.log('✅ Notificación enviada al equipo. ID:', teamResult.id);
     } catch (teamEmailError) {
-      console.error('⚠️ Error al enviar notificación al equipo:', teamEmailError);
+      console.error('❌ ERROR al enviar notificación al equipo:');
+      console.error('Mensaje:', teamEmailError.message);
+      console.error('Detalles:', teamEmailError);
       // Continuar aunque falle el email al equipo
     }
 
