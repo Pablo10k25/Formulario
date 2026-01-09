@@ -1,6 +1,12 @@
 const { Resend } = require('resend');
 const { google } = require('googleapis');
 
+// DEBUG: Ver qué variables tenemos
+console.log('🔍 Variables de entorno:');
+console.log('RESEND_API_KEY:', process.env.RESEND_API_KEY ? '✅ Configurada' : '❌ NO configurada');
+console.log('GOOGLE_SHEET_ID:', process.env.GOOGLE_SHEET_ID ? '✅ Configurada' : '❌ NO configurada');
+console.log('GOOGLE_CREDENTIALS:', process.env.GOOGLE_CREDENTIALS ? '✅ Configurada' : '❌ NO configurada');
+
 // Inicializar Resend con tu API key
 const resend = new Resend(process.env.RESEND_API_KEY);
 
