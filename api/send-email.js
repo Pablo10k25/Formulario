@@ -190,12 +190,17 @@ module.exports = async function handler(req, res) {
         subject: `🔔 Nueva solicitud de ${nombre} ${apellido} - ${empresa}`,
         html: teamEmailHTML,
       });
-      console.log('✅ Notificación enviada al equipo. ID:', teamResult.id);
+      console.log('✅ Respuesta completa de Resend (equipo):', JSON.stringify(teamResult, null, 2));
+      
+      if (teamResult.error) {
+        console.error('❌ Resend retornó ERROR:', teamResult.error);
+      } else {
+        console.log('✅ Email al equipo enviado. ID:', teamResult.data?.id || teamResult.id);
+      }
     } catch (teamEmailError) {
-      console.error('❌ ERROR al enviar notificación al equipo:');
+      console.error('❌ EXCEPCIÓN al enviar notificación al equipo:');
       console.error('Mensaje:', teamEmailError.message);
-      console.error('Detalles:', teamEmailError);
-      // Continuar aunque falle el email al equipo
+      console.error('Detalles completos:', JSON.stringify(teamEmailError, null, 2));
     }
 
     return res.status(200).json({ 
