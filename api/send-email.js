@@ -2,7 +2,7 @@ const { Resend } = require('resend');
 
 // Inicializar Resend con tu API key
 // IMPORTANTE: Obtén tu API key en https://resend.com/api-keys
-const resend = new Resend(process.env.RESEND_API_KEY || 'TU_API_KEY_AQUI');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 module.exports = async function handler(req, res) {
   // Solo permitir POST
@@ -11,6 +11,9 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    // Log para debug
+    console.log('API Key configurada:', process.env.RESEND_API_KEY ? 'Sí' : 'No');
+    
     const { 
       rut, 
       nombre, 

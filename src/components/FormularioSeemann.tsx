@@ -250,14 +250,8 @@ const FormularioSeemann = () => {
 
         {submitStatus === 'error' && (
           <div className="alert alert-error">
-            ✗ Hubo un error al enviar el formulario. 
-            {formData.correo && !formData.correo.includes('sphereglobal.io') && (
-              <span>
-                <br /><br />
-                <strong>Nota:</strong> El email debe estar autorizado en Mailgun. 
-                Si es un email de prueba, por favor usa un email autorizado o contacta directamente a: contacto@seemanngroup.com
-              </span>
-            )}
+            ✗ Hubo un error al enviar el formulario. Por favor, verifica tus datos e intenta nuevamente.
+            Si el problema persiste, contacta directamente a: contacto@seemanngroup.com
           </div>
         )}
 
