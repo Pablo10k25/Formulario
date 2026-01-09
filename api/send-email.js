@@ -183,10 +183,10 @@ module.exports = async function handler(req, res) {
     `;
 
     try {
-      console.log('📧 Enviando notificación al equipo: pineiro@sphereglobal.io');
+      console.log('📧 Enviando notificación al equipo: pablotrax03@gmail.com');
       const teamResult = await resend.emails.send({
         from: 'Seemann Group <onboarding@resend.dev>',
-        to: ['pineiro@sphereglobal.io'],
+        to: ['pablotrax03@gmail.com'],
         subject: `🔔 Nueva solicitud de ${nombre} ${apellido} - ${empresa}`,
         html: teamEmailHTML,
       });
