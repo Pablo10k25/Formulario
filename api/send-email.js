@@ -130,7 +130,7 @@ module.exports = async function handler(req, res) {
     // 2. ENVIAR EMAIL DE CONFIRMACIÓN AL CLIENTE CON BREVO
     let sendSmtpEmail = new brevo.SendSmtpEmail();
     
-    sendSmtpEmail.sender = { name: 'Seemann Group', email: 'noreply@seemanngroup.com' };
+    sendSmtpEmail.sender = { name: 'Seemann Group', email: 'pablotrax03@gmail.com' };
     sendSmtpEmail.to = [{ email: correo, name: `${nombre} ${apellido}` }];
     sendSmtpEmail.subject = 'Confirmación de Registro - Seemann Group';
     sendSmtpEmail.htmlContent = emailHTML;
@@ -174,7 +174,7 @@ module.exports = async function handler(req, res) {
     `;
 
     let teamEmail = new brevo.SendSmtpEmail();
-    teamEmail.sender = { name: 'Sistema Seemann Group', email: 'sistema@seemanngroup.com' };
+    teamEmail.sender = { name: 'Sistema Seemann Group', email: 'pablotrax03@gmail.com' };
     teamEmail.to = [
       { email: 'pablotrax03@gmail.com', name: 'Equipo Seemann' },
       { email: 'contacto@seemanngroup.com', name: 'Contacto Seemann' }
