@@ -176,8 +176,7 @@ module.exports = async function handler(req, res) {
     let teamEmail = new brevo.SendSmtpEmail();
     teamEmail.sender = { name: 'Sistema Seemann Group', email: 'pablotrax03@gmail.com' };
     teamEmail.to = [
-      { email: 'pablotrax03@gmail.com', name: 'Equipo Seemann' },
-      { email: 'contacto@seemanngroup.com', name: 'Contacto Seemann' }
+      { email: 'pablotrax03@gmail.com', name: 'Equipo Seemann' }
     ];
     teamEmail.subject = `Nuevo Registro: ${nombre} ${apellido}`;
     teamEmail.htmlContent = teamEmailHTML;
