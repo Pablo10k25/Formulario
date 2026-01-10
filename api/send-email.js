@@ -83,46 +83,36 @@ module.exports = async function handler(req, res) {
       console.log('⚠️ GOOGLE_SHEET_ID no configurado');
     }
 
-    // Preparar el HTML del email
+    // Preparar el HTML del email (diseño transaccional simple)
     const emailHTML = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #A41E34 0%, #B71C3A 100%); color: white; padding: 30px; text-align: center;">
-          <h1 style="margin: 0; font-size: 28px;">SEEMANN GROUP</h1>
-          <p style="margin: 10px 0 0 0; font-size: 16px;">Formulario de Registro</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+        <div style="border-bottom: 3px solid #A41E34; padding-bottom: 15px; margin-bottom: 20px;">
+          <h2 style="margin: 0; color: #A41E34;">SEEMANN GROUP</h2>
+          <p style="margin: 5px 0 0 0; color: #666;">Confirmación de Registro</p>
         </div>
         
-        <div style="padding: 30px; background: #f9f9f9;">
-          <p>Estimado/a <strong>${nombre} ${apellido}</strong>,</p>
-          
-          <p>Gracias por registrar su información en Seemann Group.</p>
-          
-          <p>Hemos recibido exitosamente sus datos y nuestro equipo los revisará en breve.</p>
-          
-          <h3 style="color: #A41E34; margin-top: 25px;">Información registrada:</h3>
-          
-          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #A41E34;">
-            <p><strong>RUT:</strong> ${rut}</p>
-            <p><strong>Nombre:</strong> ${nombre} ${apellido}</p>
-            <p><strong>Teléfono:</strong> ${telefono}</p>
-            <p><strong>Empresa:</strong> ${empresa}</p>
-            <p><strong>Dirección:</strong> ${direccion}</p>
-            <p><strong>Comuna:</strong> ${comuna}</p>
-            <p><strong>Ciudad:</strong> ${ciudad}</p>
-          </div>
-          
-          <p style="margin-top: 30px;">Nos pondremos en contacto con usted a la brevedad.</p>
-          
-          <p>Saludos cordiales,<br>
-          <strong>Equipo Seemann Group</strong></p>
-        </div>
+        <p>Estimado/a <strong>${nombre} ${apellido}</strong>,</p>
         
-        <div style="background: #1a1a1a; color: white; padding: 20px; text-align: center; font-size: 14px;">
-          <p style="margin: 5px 0;"><strong>Seemann Group</strong></p>
-          <p style="margin: 5px 0;">Líder en soluciones logísticas internacionales</p>
-          <p style="margin: 5px 0;">
-            <a href="mailto:contacto@seemanngroup.com" style="color: #B71C3A; text-decoration: none;">contacto@seemanngroup.com</a> | 
-            <a href="tel:+56226048386" style="color: #B71C3A; text-decoration: none;">+56 2 2604 8386</a>
-          </p>
+        <p>Gracias por registrar su información en Seemann Group. Hemos recibido exitosamente sus datos:</p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>RUT:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${rut}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Nombre:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${nombre} ${apellido}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Teléfono:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${telefono}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Email:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${correo}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Empresa:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${empresa}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Dirección:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${direccion}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Comuna:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${comuna}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Ciudad:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${ciudad}</td></tr>
+        </table>
+        
+        <p>Nuestro equipo revisará su información y se pondrá en contacto con usted a la brevedad.</p>
+        
+        <p>Saludos cordiales,<br><strong>Equipo Seemann Group</strong></p>
+        
+        <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
+          <p>Seemann Group - Soluciones logísticas internacionales<br>
+          Email: <a href="mailto:contacto@seemanngroup.com">contacto@seemanngroup.com</a> | Tel: +56 2 2604 8386</p>
         </div>
       </div>
     `;
@@ -132,8 +122,13 @@ module.exports = async function handler(req, res) {
     
     sendSmtpEmail.sender = { name: 'Seemann Group', email: 'pablotrax03@gmail.com' };
     sendSmtpEmail.to = [{ email: correo, name: `${nombre} ${apellido}` }];
+    sendSmtpEmail.replyTo = { email: 'pablotrax03@gmail.com', name: 'Seemann Group' };
     sendSmtpEmail.subject = 'Confirmación de Registro - Seemann Group';
     sendSmtpEmail.htmlContent = emailHTML;
+    sendSmtpEmail.headers = {
+      'X-Priority': '1',
+      'X-Category': 'transactional'
+    };
 
     try {
       const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
