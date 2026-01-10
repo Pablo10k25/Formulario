@@ -137,7 +137,7 @@ module.exports = async function handler(req, res) {
 
     try {
       const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-      console.log('✅ Email de confirmación enviado al cliente:', data);
+      console.log('✅ Email de confirmación enviado al cliente. MessageId:', data.body?.messageId);
     } catch (error) {
       console.error('❌ Error al enviar email al cliente:', error);
       return res.status(400).json({ 
@@ -184,7 +184,7 @@ module.exports = async function handler(req, res) {
 
     try {
       const teamData = await apiInstance.sendTransacEmail(teamEmail);
-      console.log('✅ Notificación enviada al equipo:', teamData);
+      console.log('✅ Notificación enviada al equipo. MessageId:', teamData.body?.messageId);
     } catch (error) {
       console.error('⚠️ Error al enviar notificación al equipo (no crítico):', error);
       // No retornar error, ya que el email principal fue enviado
