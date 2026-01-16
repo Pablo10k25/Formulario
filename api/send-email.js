@@ -141,40 +141,28 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 3. ENVIAR NOTIFICACIÓN AL EQUIPO
-    const teamEmailHTML = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: linear-gradient(135deg, #A41E34 0%, #B71C3A 100%); color: white; padding: 30px; text-align: center;">
-          <h1 style="margin: 0; font-size: 28px;">NUEVO REGISTRO</h1>
-          <p style="margin: 10px 0 0 0; font-size: 16px;">Formulario Seemann Group</p>
-        </div>
-        
-        <div style="padding: 30px; background: #f9f9f9;">
-          <p><strong>Se ha recibido un nuevo registro:</strong></p>
-          
-          <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #A41E34;">
-            <p><strong>RUT:</strong> ${rut}</p>
-            <p><strong>Nombre:</strong> ${nombre} ${apellido}</p>
-            <p><strong>Teléfono:</strong> ${telefono}</p>
-            <p><strong>Correo:</strong> ${correo}</p>
-            <p><strong>Empresa:</strong> ${empresa}</p>
-            <p><strong>Dirección:</strong> ${direccion}</p>
-            <p><strong>Comuna:</strong> ${comuna}</p>
-            <p><strong>Ciudad:</strong> ${ciudad}</p>
-          </div>
-          
-          <p style="margin-top: 30px;">Este mensaje ha sido generado automáticamente.</p>
-        </div>
-      </div>
-    `;
+    // 3. ENVIAR NOTIFICACIÓN AL EQUIPO (TEXTO SIMPLE)
+    const teamEmailText = `NUEVO REGISTRO - Formulario Seemann Group
+
+RUT: ${rut}
+Nombre: ${nombre} ${apellido}
+Teléfono: ${telefono}
+Email: ${correo}
+Empresa: ${empresa}
+Dirección: ${direccion}
+Comuna: ${comuna}
+Ciudad: ${ciudad}
+
+---
+Este es un mensaje automático del sistema de registro.`;
 
     let teamEmail = new brevo.SendSmtpEmail();
-    teamEmail.sender = { name: 'Sistema Seemann Group', email: 'pablotrax03@gmail.com' };
+    teamEmail.sender = { name: 'Seemann Group', email: 'pablotrax03@gmail.com' };
     teamEmail.to = [
-      { email: 'pablotrax03@gmail.com', name: 'Equipo Seemann' }
+      { email: 'pablotrax03@gmail.com', name: 'Pablo Piñeiro' }
     ];
-    teamEmail.subject = `Nuevo Registro: ${nombre} ${apellido}`;
-    teamEmail.htmlContent = teamEmailHTML;
+    teamEmail.subject = `Registro recibido: ${nombre} ${apellido}`;
+    teamEmail.textContent = teamEmailText;
 
     try {
       const teamData = await apiInstance.sendTransacEmail(teamEmail);
