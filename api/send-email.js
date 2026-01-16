@@ -32,20 +32,14 @@ module.exports = async function handler(req, res) {
     console.log('API Key configurada:', process.env.BREVO_API_KEY ? 'Sí' : 'No');
     
     const { 
-      rut, 
       nombre, 
-      apellido, 
       telefono, 
-      correo, 
-      empresa, 
-      direccion, 
-      comuna, 
-      ciudad
+      correo
     } = req.body;
 
     // Validar datos requeridos
-    if (!correo || !nombre || !apellido) {
-      return res.status(400).json({ error: 'Faltan datos requeridos' });
+    if (!nombre || !telefono) {
+      return res.status(400).json({ error: 'Faltan datos requeridos: nombre y teléfono son obligatorios' });
     }
 
     // 1. GUARDAR EN GOOGLE SHEETS
@@ -57,20 +51,14 @@ module.exports = async function handler(req, res) {
       try {
         const result = await sheets.spreadsheets.values.append({
           spreadsheetId: SPREADSHEET_ID,
-          range: 'Respuestas!A:J',
+          range: 'Respuestas!A:D',
           valueInputOption: 'USER_ENTERED',
           requestBody: {
             values: [[
               timestamp,
-              rut,
               nombre,
-              apellido,
               telefono,
-              correo,
-              empresa,
-              direccion,
-              comuna,
-              ciudad
+              correo || 'No proporcionado'
             ]],
           },
         });
@@ -91,22 +79,17 @@ module.exports = async function handler(req, res) {
           <p style="margin: 5px 0 0 0; color: #666;">Confirmación de Registro</p>
         </div>
         
-        <p>Estimado/a <strong>${nombre} ${apellido}</strong>,</p>
+        <p>Estimado/a <strong>${nombre}</strong>,</p>
         
-        <p>Gracias por registrar su información en Seemann Group. Hemos recibido exitosamente sus datos:</p>
+        <p>Gracias por contactarnos. Hemos recibido su información:</p>
         
         <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>RUT:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${rut}</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Nombre:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${nombre} ${apellido}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Nombre:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${nombre}</td></tr>
           <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Teléfono:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${telefono}</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Email:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${correo}</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Empresa:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${empresa}</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Dirección:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${direccion}</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Comuna:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${comuna}</td></tr>
-          <tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Ciudad:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${ciudad}</td></tr>
+          ${correo ? `<tr><td style="padding: 8px; border: 1px solid #ddd; background: #f9f9f9;"><strong>Email:</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${correo}</td></tr>` : ''}
         </table>
         
-        <p>Nuestro equipo revisará su información y se pondrá en contacto con usted a la brevedad.</p>
+        <p>Nuestro equipo se pondrá en contacto con usted a la brevedad.</p>
         
         <p>Saludos cordiales,<br><strong>Equipo Seemann Group</strong></p>
         
@@ -117,41 +100,37 @@ module.exports = async function handler(req, res) {
       </div>
     `;
 
-    // 2. ENVIAR EMAIL DE CONFIRMACIÓN AL CLIENTE CON BREVO
-    let sendSmtpEmail = new brevo.SendSmtpEmail();
-    
-    sendSmtpEmail.sender = { name: 'Seemann Group', email: 'pablotrax03@gmail.com' };
-    sendSmtpEmail.to = [{ email: correo, name: `${nombre} ${apellido}` }];
-    sendSmtpEmail.replyTo = { email: 'pablotrax03@gmail.com', name: 'Seemann Group' };
-    sendSmtpEmail.subject = 'Confirmación de Registro - Seemann Group';
-    sendSmtpEmail.htmlContent = emailHTML;
-    sendSmtpEmail.headers = {
-      'X-Priority': '1',
-      'X-Category': 'transactional'
-    };
+    // 2. ENVIAR EMAIL DE CONFIRMACIÓN AL CLIENTE CON BREVO (solo si proporcionó email)
+    if (correo) {
+      let sendSmtpEmail = new brevo.SendSmtpEmail();
+      
+      sendSmtpEmail.sender = { name: 'Seemann Group', email: 'pablotrax03@gmail.com' };
+      sendSmtpEmail.to = [{ email: correo, name: nombre }];
+      sendSmtpEmail.replyTo = { email: 'pablotrax03@gmail.com', name: 'Seemann Group' };
+      sendSmtpEmail.subject = 'Confirmación de Contacto - Seemann Group';
+      sendSmtpEmail.htmlContent = emailHTML;
+      sendSmtpEmail.headers = {
+        'X-Priority': '1',
+        'X-Category': 'transactional'
+      };
 
-    try {
-      const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-      console.log('✅ Email de confirmación enviado al cliente. MessageId:', data.body?.messageId);
-    } catch (error) {
-      console.error('❌ Error al enviar email al cliente:', error);
-      return res.status(400).json({ 
-        error: 'Error al enviar el email de confirmación',
-        details: error.message 
-      });
+      try {
+        const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+        console.log('✅ Email de confirmación enviado al cliente. MessageId:', data.body?.messageId);
+      } catch (error) {
+        console.error('❌ Error al enviar email al cliente:', error);
+        // No retornar error si el email falla, continuar con notificación al equipo
+      }
+    } else {
+      console.log('ℹ️ Cliente no proporcionó email, saltando envío de confirmación');
     }
 
     // 3. ENVIAR NOTIFICACIÓN AL EQUIPO (TEXTO SIMPLE)
-    const teamEmailText = `NUEVO REGISTRO - Formulario Seemann Group
+    const teamEmailText = `NUEVO CONTACTO - Formulario Seemann Group
 
-RUT: ${rut}
-Nombre: ${nombre} ${apellido}
+Nombre: ${nombre}
 Teléfono: ${telefono}
-Email: ${correo}
-Empresa: ${empresa}
-Dirección: ${direccion}
-Comuna: ${comuna}
-Ciudad: ${ciudad}
+Email: ${correo || 'No proporcionado'}
 
 ---
 Este es un mensaje automático del sistema de registro.`;
@@ -161,7 +140,7 @@ Este es un mensaje automático del sistema de registro.`;
     teamEmail.to = [
       { email: 'pablotrax03@gmail.com', name: 'Pablo Piñeiro' }
     ];
-    teamEmail.subject = `Registro recibido: ${nombre} ${apellido}`;
+    teamEmail.subject = `Nuevo contacto: ${nombre}`;
     teamEmail.textContent = teamEmailText;
 
     try {

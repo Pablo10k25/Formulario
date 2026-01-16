@@ -3,28 +3,16 @@ import type { FormEvent } from 'react';
 import './FormularioSeemann.css';
 
 interface FormData {
-  rut: string;
   nombre: string;
-  apellido: string;
   telefono: string;
   correo: string;
-  empresa: string;
-  direccion: string;
-  comuna: string;
-  ciudad: string;
 }
 
 const FormularioSeemann = () => {
   const [formData, setFormData] = useState<FormData>({
-    rut: '',
     nombre: '',
-    apellido: '',
     telefono: '',
     correo: '',
-    empresa: '',
-    direccion: '',
-    comuna: '',
-    ciudad: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -116,28 +104,11 @@ const FormularioSeemann = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="formulario-form">
-        {/* Información Básica */}
         <section className="form-section">
           <h2>Información de Contacto</h2>
           
           <div className="form-group">
-            <label htmlFor="rut">RUT *</label>
-            <input
-              type="text"
-              id="rut"
-              name="rut"
-              value={formData.rut}
-              onChange={handleChange}
-              required
-              placeholder="12.345.678-9 (con puntos y guión)"
-            />
-            <small style={{ color: '#666', fontSize: '0.9rem', marginTop: '4px', display: 'block' }}>
-              Ejemplo: 12.345.678-9 (incluir puntos y guión)
-            </small>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="nombre">Nombre *</label>
+            <label htmlFor="nombre">Nombre Completo *</label>
             <input
               type="text"
               id="nombre"
@@ -145,20 +116,7 @@ const FormularioSeemann = () => {
               value={formData.nombre}
               onChange={handleChange}
               required
-              placeholder="Ingrese su nombre"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="apellido">Apellido *</label>
-            <input
-              type="text"
-              id="apellido"
-              name="apellido"
-              value={formData.apellido}
-              onChange={handleChange}
-              required
-              placeholder="Ingrese su apellido"
+              placeholder="Ingrese su nombre completo"
             />
           </div>
 
@@ -171,72 +129,19 @@ const FormularioSeemann = () => {
               value={formData.telefono}
               onChange={handleChange}
               required
-              placeholder="+56 9 1234 5678"
+              placeholder="+(XX) XXXX XXXX"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="correo">Correo Electrónico *</label>
+            <label htmlFor="correo">Correo Electrónico (Opcional)</label>
             <input
               type="email"
               id="correo"
               name="correo"
               value={formData.correo}
               onChange={handleChange}
-              required
               placeholder="ejemplo@correo.com"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="empresa">Nombre de la Empresa *</label>
-            <input
-              type="text"
-              id="empresa"
-              name="empresa"
-              value={formData.empresa}
-              onChange={handleChange}
-              required
-              placeholder="Nombre de su empresa"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="direccion">Dirección Comercial *</label>
-            <input
-              type="text"
-              id="direccion"
-              name="direccion"
-              value={formData.direccion}
-              onChange={handleChange}
-              required
-              placeholder="Calle, número, oficina"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="comuna">Comuna *</label>
-            <input
-              type="text"
-              id="comuna"
-              name="comuna"
-              value={formData.comuna}
-              onChange={handleChange}
-              required
-              placeholder="Comuna"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="ciudad">Ciudad *</label>
-            <input
-              type="text"
-              id="ciudad"
-              name="ciudad"
-              value={formData.ciudad}
-              onChange={handleChange}
-              required
-              placeholder="Ciudad"
             />
           </div>
         </section>
@@ -244,20 +149,13 @@ const FormularioSeemann = () => {
         {/* Mensajes de estado */}
         {submitStatus === 'success' && (
           <div className="alert alert-success">
-            ✓ ¡Información enviada exitosamente! Recibirá un correo de confirmación con sus datos.
+            ✓ ¡Información enviada exitosamente!
           </div>
         )}
 
         {submitStatus === 'error' && (
           <div className="alert alert-error">
-            ✗ Hubo un error al enviar el formulario. 
-            {formData.correo && !formData.correo.includes('sphereglobal.io') && (
-              <span>
-                <br /><br />
-                <strong>Nota:</strong> El email debe estar autorizado en Mailgun. 
-                Si es un email de prueba, por favor usa un email autorizado o contacta directamente a: contacto@seemanngroup.com
-              </span>
-            )}
+            ✗ Hubo un error al enviar el formulario. Por favor, intente nuevamente o contacte directamente a: contacto@seemanngroup.com
           </div>
         )}
 
